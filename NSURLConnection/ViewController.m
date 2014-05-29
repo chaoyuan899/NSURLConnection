@@ -20,7 +20,8 @@
 	
   //  [self fetchAppleHtml];
 //    [self fetchYahooData];
-    [self fetchYahooData2_GCD];
+//    [self fetchYahooData2_GCD];
+    [self httpGetWithParams];
 }
 
 //asynchronousRequest connection
@@ -99,11 +100,58 @@
 }
 
 
+//send a GET request to server with some params
+-(void)httpGetWithParams{
+    NSString *urlString = @"http://chaoyuan.sinaapp.com";
+    urlString = [urlString stringByAppendingString:@"?p=1059"];
+    NSURL *url = [NSURL URLWithString:urlString];
+    NSMutableURLRequest *urlRequest = [NSMutableURLRequest requestWithURL:url];
+    [urlRequest setTimeoutInterval:30.0f];
+    [urlRequest setHTTPMethod:@"GET"];
+    NSOperationQueue *queue = [[NSOperationQueue alloc] init];
+    [NSURLConnection sendAsynchronousRequest:urlRequest queue:queue completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
+        if ([data length] > 0 && connectionError == nil) {
+            NSString *html = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+            NSLog(@"HTML = %@",html);
+        }else if([data length] == 0 && connectionError == nil){
+            NSLog(@"nothing was download.");
+        }else if(connectionError != nil){
+            NSLog(@"Error happened = %@",connectionError);
+        }
+    }];
+}
 
+//send a POST request to a server with some params
+-(void)httpPostWithParams{
+    NSString *urlAsString = @"http://chaoyuan.sinaapp.com";
+    urlAsString = [urlAsString stringByAppendingString:@"?param1=First"];
+    urlAsString = [urlAsString stringByAppendingString:@"&param2=Second"];
+    NSURL *url = [NSURL URLWithString:urlAsString];
+    NSMutableURLRequest *urlRequest = [NSMutableURLRequest requestWithURL:url]; [urlRequest setTimeoutInterval:30.0f];
+    [urlRequest setHTTPMethod:@"POST"];
+    NSString *body = @"bodyParam1=BodyValue1&bodyParam2=BodyValue2"; [urlRequest setHTTPBody:[body dataUsingEncoding:NSUTF8StringEncoding]]; NSOperationQueue *queue = [[NSOperationQueue alloc] init];
+    [NSURLConnection
+     sendAsynchronousRequest:urlRequest
+     queue:queue completionHandler:^(NSURLResponse *response, NSData *data,
+                                     NSError *error) {
+         if ([data length] >0 &&
+             error == nil){
+             NSString *html = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]; NSLog(@"HTML = %@", html);
+         }
+         else if ([data length] == 0 &&
+                  error == nil){
+             NSLog(@"Nothing was downloaded.");
+         }
+         else if (error != nil){
+             NSLog(@"Error happened = %@", error);
+         }
+     }];
+}
 
-
-
-
+/*
+ tips:
+    except http get and post there are http delete and put and something else, if you are crazy about http, please GOOGLE!
+ */
 
 
 @end
